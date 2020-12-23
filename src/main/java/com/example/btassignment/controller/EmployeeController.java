@@ -18,7 +18,16 @@ public class EmployeeController {
 
   @GetMapping("")
     public List<Employee> list() {
-      return employeeService.listAllEmployees();
+      try {
+        List<Employee> employees = employeeService.listAllEmployees();
+        if(employees.isEmpty()) {
+          throw new Exception();
+        }
+        return employees;
+      } catch (Exception e) {
+        System.err.println("No Employees currently!");
+        return null;
+      }
     }
 
     @GetMapping("/{id}")
@@ -33,13 +42,20 @@ public class EmployeeController {
 
     @PostMapping("/")
     public void add(@RequestBody Employee employee) {
-      employeeService.saveEmployee(employee);
+      try { 
+        if(employee == null) {
+          throw new NullPointerException();
+        }
+        employeeService.saveEmployee(employee);
+      } catch (NullPointerException e) {
+        System.err.println("Employee must be NOT NULL");
+      }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@RequestBody Employee employee, @PathVariable Integer id) {
       try {
-          // Employee existEmployee = employeeService.getEmployee(id);
+          // Employee existEmployee = employeeService.getEmployee(id);  
           employee.setId(id);
           employeeService.saveEmployee(employee);
           return new ResponseEntity<>(HttpStatus.OK);
@@ -50,6 +66,12 @@ public class EmployeeController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
-      employeeService.deleteEmployee(id);
+      try {
+        // Employee existEmployee = employeeService.getEmployee(id);
+        employeeService.deleteEmployee(id);
+      } catch(NoSuchElementException e) {
+        System.err.println("Employee to delete not found!");
+        return;
+      }
     }
 }
